@@ -22,10 +22,13 @@ const chainIds = {
   mainnet: 1,
   rinkeby: 4,
   ropsten: 3,
+  mumbai: 80001,
+  matic: 137,
 };
 
 // Ensure that we have all the environment variables we need.
 const mnemonic = process.env.MNEMONIC;
+
 if (!mnemonic) {
   throw new Error("Please set your MNEMONIC in a .env file");
 }
@@ -37,13 +40,16 @@ if (!infuraApiKey) {
 
 function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig {
   const url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
+  if (!mnemonic) throw new Error("Please set your mnemonic");
   return {
-    accounts: {
-      count: 10,
-      initialIndex: 0,
-      mnemonic,
-      path: "m/44'/60'/0'/0",
-    },
+    // use with HW wallets
+    // accounts: {
+    //   count: 10,
+    //   initialIndex: 0,
+    //   mnemonic,
+    //   path: "m/44'/60'/0'/0",
+    // },
+    accounts: [mnemonic],
     chainId: chainIds[network],
     url,
   };
@@ -68,6 +74,16 @@ const config: HardhatUserConfig = {
     kovan: createTestnetConfig("kovan"),
     rinkeby: createTestnetConfig("rinkeby"),
     ropsten: createTestnetConfig("ropsten"),
+    mumbai: {
+      url: "https://rpc-mumbai.matic.today",
+      accounts: [mnemonic],
+      chainId: chainIds.mumbai,
+    },
+    matic: {
+      url: "https://rpc-mainnet.maticvigil.com/",
+      accounts: [mnemonic],
+      chainId: chainIds.matic,
+    },
   },
   paths: {
     artifacts: "./artifacts",
